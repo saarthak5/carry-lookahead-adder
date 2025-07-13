@@ -1,0 +1,95 @@
+* SPICE3 file created from xor.ext - technology: scmos
+
+.include TSMC_180nm.txt
+.param SUPPLY=1.8
+.param LAMBDA=0.09u
+.param Wn={10*LAMBDA}
+.global gnd vdd
+
+* Source		Nodes			Value
+*******************************************************************
+Vdd				vdd gnd			'SUPPLY'
+Va				A	gnd			pulse 0 'SUPPLY' 0 10p 10p 10n 20n
+Vb				B	gnd			pulse 0 'SUPPLY' 0 10p 10p 20n 40n
+
+.option scale=0.09u
+
+M1000 vdd A a_59_36# vdd CMOSP w=20 l=2
++  ad=400 pd=200 as=240 ps=64
+M1001 a_13_11# A gnd Gnd CMOSN w=10 l=2
++  ad=50 pd=30 as=210 ps=102
+M1002 out B a_37_36# vdd CMOSP w=20 l=2
++  ad=120 pd=52 as=240 ps=64
+M1003 a_37_n72# a_13_11# out Gnd CMOSN w=10 l=2
++  ad=100 pd=60 as=100 ps=60
+M1004 a_37_n72# a_13_n72# gnd Gnd CMOSN w=10 l=2
++  ad=0 pd=0 as=0 ps=0
+M1005 gnd B a_46_n72# Gnd CMOSN w=10 l=2
++  ad=0 pd=0 as=120 ps=64
+M1006 out A a_46_n72# Gnd CMOSN w=10 l=2
++  ad=0 pd=0 as=0 ps=0
+M1007 a_13_11# A vdd vdd CMOSP w=20 l=2
++  ad=100 pd=50 as=0 ps=0
+M1008 a_59_36# a_13_n72# out vdd CMOSP w=20 l=2
++  ad=0 pd=0 as=0 ps=0
+M1009 a_37_36# a_13_11# vdd vdd CMOSP w=20 l=2
++  ad=0 pd=0 as=0 ps=0
+M1010 a_13_n72# B gnd Gnd CMOSN w=10 l=2
++  ad=50 pd=30 as=0 ps=0
+M1011 a_13_n72# B vdd vdd CMOSP w=20 l=2
++  ad=100 pd=50 as=0 ps=0
+C0 vdd a_13_11# 0.48fF
+C1 a_13_n72# a_13_11# 0.01fF
+C2 out a_46_n72# 0.10fF
+C3 A a_13_11# 0.17fF
+C4 gnd a_46_n72# 0.12fF
+C5 a_13_11# B 0.13fF
+C6 gnd out 0.04fF
+C7 a_46_n72# a_37_n72# 0.39fF
+C8 a_13_n72# a_46_n72# 0.00fF
+C9 vdd out 0.11fF
+C10 out a_37_n72# 0.18fF
+C11 a_13_n72# out 0.21fF
+C12 A a_46_n72# 0.01fF
+C13 a_13_n72# gnd 0.14fF
+C14 gnd a_37_n72# 0.16fF
+C15 a_46_n72# B 0.00fF
+C16 a_13_n72# vdd 0.42fF
+C17 A out 0.22fF
+C18 a_13_n72# a_37_n72# 0.17fF
+C19 A gnd 0.51fF
+C20 out B 0.43fF
+C21 A vdd 0.25fF
+C22 gnd B 0.43fF
+C23 vdd B 0.67fF
+C24 A a_37_n72# 0.09fF
+C25 A a_13_n72# 0.03fF
+C26 a_13_n72# B 0.42fF
+C27 a_37_n72# B 0.11fF
+C28 A B 0.71fF
+C29 out a_13_11# 0.08fF
+C30 gnd a_13_11# 0.10fF
+C31 a_46_n72# Gnd 0.43fF
+C32 a_37_n72# Gnd 0.13fF
+C33 gnd Gnd 1.19fF
+C34 out Gnd 0.64fF
+C35 a_13_n72# Gnd 1.14fF
+C36 B Gnd 1.19fF
+C37 a_13_11# Gnd 0.68fF
+C38 A Gnd 1.41fF
+C39 vdd Gnd 4.43fF
+
+.control
+tran 100p 40n
+run
+
+set hcopypscolor=1
+set color0=white
+set color1=black
+
+set curplottitle='Saarthak-Sabharwal-2023102055-xor-post'
+plot V(out) V(A)+2 V(B)+4
+*hardcopy xor.eps V(out) V(A)+2 V(B)+4
+.endc
+
+.end

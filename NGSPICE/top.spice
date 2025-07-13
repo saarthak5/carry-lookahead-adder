@@ -1,0 +1,295 @@
+* 4-bit CLA (top-level circuit)
+
+.include TSMC_180nm.txt
+.param SUPPLY=1.8
+.param LAMBDA=0.09u
+.param Wn={10*LAMBDA}
+.param Wp={2*Wn}
+.param PER=2n
+.global gnd vdd
+
+* Source		Nodes			Value
+************************************************************************
+Vdd				vdd gnd			'SUPPLY'
+Va0				A0	gnd			'SUPPLY'
+Va1				A1	gnd			'SUPPLY'
+Va2				A2	gnd			'SUPPLY'
+Va3				A3	gnd			0
+Vb0				B0	gnd			0
+Vb1				B1	gnd			'SUPPLY'
+Vb2				B2	gnd			0
+Vb3				B3	gnd			'SUPPLY'
+Vcin			Cin	gnd			0
+Vclk			clk	gnd			pulse 0 'SUPPLY' 0 10p 10p 'PER' '2*PER'
+
+* A = 0111, B = 1010
+
+.subckt INV x xbar
+
+Mp xbar x vdd vdd CMOSP
++ L={2*LAMBDA} W={Wp}
++ AS={5*Wp*LAMBDA} AD={5*Wp*LAMBDA}
++ PS={10*LAMBDA+2*Wp} PD={10*LAMBDA+2*Wp}
+
+Mn xbar x gnd gnd CMOSN
++ L={2*LAMBDA} W={Wn}
++ AS={5*Wn*LAMBDA} AD={5*Wn*LAMBDA}
++ PS={10*LAMBDA+2*Wn} PD={10*LAMBDA+2*Wn}
+
+.ends INV
+
+.subckt AND f x y
+
+Mp1 fbar x vdd vdd CMOSP
++ L={2*LAMBDA} W={Wp}
++ AS={5*Wp*LAMBDA} AD={5*Wp*LAMBDA}
++ PS={10*LAMBDA+2*Wp} PD={10*LAMBDA+2*Wp}
+
+Mp2 fbar y vdd vdd CMOSP
++ L={2*LAMBDA} W={Wp}
++ AS={5*Wp*LAMBDA} AD={5*Wp*LAMBDA}
++ PS={10*LAMBDA+2*Wp} PD={10*LAMBDA+2*Wp}
+
+Mn1 fbar x n1 gnd CMOSN
++ L={2*LAMBDA} W={Wn}
++ AS={5*Wn*LAMBDA} AD={5*Wn*LAMBDA}
++ PS={10*LAMBDA+2*Wn} PD={10*LAMBDA+2*Wn}
+
+Mn2 n1 y gnd gnd CMOSN
++ L={2*LAMBDA} W={Wn}
++ AS={5*Wn*LAMBDA} AD={5*Wn*LAMBDA}
++ PS={10*LAMBDA+2*Wn} PD={10*LAMBDA+2*Wn}
+
+X1 fbar f INV
+
+.ends AND
+
+.subckt OR f x y
+
+Mp1 n1 x vdd vdd CMOSP
++ L={2*LAMBDA} W={Wp}
++ AS={5*Wp*LAMBDA} AD={5*Wp*LAMBDA}
++ PS={10*LAMBDA+2*Wp} PD={10*LAMBDA+2*Wp}
+
+Mp2 fbar y n1 vdd CMOSP
++ L={2*LAMBDA} W={Wp}
++ AS={5*Wp*LAMBDA} AD={5*Wp*LAMBDA}
++ PS={10*LAMBDA+2*Wp} PD={10*LAMBDA+2*Wp}
+
+Mn1 fbar x gnd gnd CMOSN
++ L={2*LAMBDA} W={Wn}
++ AS={5*Wn*LAMBDA} AD={5*Wn*LAMBDA}
++ PS={10*LAMBDA+2*Wn} PD={10*LAMBDA+2*Wn}
+
+Mn2 fbar y gnd gnd CMOSN
++ L={2*LAMBDA} W={Wn}
++ AS={5*Wn*LAMBDA} AD={5*Wn*LAMBDA}
++ PS={10*LAMBDA+2*Wn} PD={10*LAMBDA+2*Wn}
+
+X1 fbar f INV
+
+.ends OR
+
+.subckt XOR f x y
+
+X1 x xbar INV
+X2 y ybar INV
+
+Mp1 n1 x vdd vdd CMOSP
++ L={2*LAMBDA} W={Wp}
++ AS={5*Wp*LAMBDA} AD={5*Wp*LAMBDA}
++ PS={10*LAMBDA+2*Wp} PD={10*LAMBDA+2*Wp}
+
+Mp2 n2 xbar vdd vdd CMOSP
++ L={2*LAMBDA} W={Wp}
++ AS={5*Wp*LAMBDA} AD={5*Wp*LAMBDA}
++ PS={10*LAMBDA+2*Wp} PD={10*LAMBDA+2*Wp}
+
+Mp3 f ybar n1 vdd CMOSP
++ L={2*LAMBDA} W={Wp}
++ AS={5*Wp*LAMBDA} AD={5*Wp*LAMBDA}
++ PS={10*LAMBDA+2*Wp} PD={10*LAMBDA+2*Wp}
+
+Mp4 f y n2 vdd CMOSP
++ L={2*LAMBDA} W={Wp}
++ AS={5*Wp*LAMBDA} AD={5*Wp*LAMBDA}
++ PS={10*LAMBDA+2*Wp} PD={10*LAMBDA+2*Wp}
+
+Mn1 f xbar n3 gnd CMOSN
++ L={2*LAMBDA} W={Wn}
++ AS={5*Wn*LAMBDA} AD={5*Wn*LAMBDA}
++ PS={10*LAMBDA+2*Wn} PD={10*LAMBDA+2*Wn}
+
+Mn2 f x n4 gnd CMOSN
++ L={2*LAMBDA} W={Wn}
++ AS={5*Wn*LAMBDA} AD={5*Wn*LAMBDA}
++ PS={10*LAMBDA+2*Wn} PD={10*LAMBDA+2*Wn}
+
+Mn3 n3 ybar gnd gnd CMOSN
++ L={2*LAMBDA} W={Wn}
++ AS={5*Wn*LAMBDA} AD={5*Wn*LAMBDA}
++ PS={10*LAMBDA+2*Wn} PD={10*LAMBDA+2*Wn}
+
+Mn4 n4 y gnd gnd CMOSN
++ L={2*LAMBDA} W={Wn}
++ AS={5*Wn*LAMBDA} AD={5*Wn*LAMBDA}
++ PS={10*LAMBDA+2*Wn} PD={10*LAMBDA+2*Wn}
+
+.ends XOR
+
+.subckt DFF Q D clk
+
+.param W={10*LAMBDA}
+
+M1 a D gnd gnd CMOSN
++ L={2*LAMBDA} W={W}
++ AS={5*W*LAMBDA} AD={5*W*LAMBDA}
++ PS={10*LAMBDA+2*W} PD={10*LAMBDA+2*W}
+
+M2 a clk s2d3 vdd CMOSP
++ L={2*LAMBDA} W={W}
++ AS={5*W*LAMBDA} AD={5*W*LAMBDA}
++ PS={10*LAMBDA+2*W} PD={10*LAMBDA+2*W}
+
+M3 s2d3 D vdd vdd CMOSP
++ L={2*LAMBDA} W={W}
++ AS={5*W*LAMBDA} AD={5*W*LAMBDA}
++ PS={10*LAMBDA+2*W} PD={10*LAMBDA+2*W}
+
+M4 d4s5 clk gnd gnd CMOSN
++ L={2*LAMBDA} W={W}
++ AS={5*W*LAMBDA} AD={5*W*LAMBDA}
++ PS={10*LAMBDA+2*W} PD={10*LAMBDA+2*W}
+
+M5 b a d4s5 gnd CMOSN
++ L={2*LAMBDA} W={W}
++ AS={5*W*LAMBDA} AD={5*W*LAMBDA}
++ PS={10*LAMBDA+2*W} PD={10*LAMBDA+2*W}
+
+M6 b clk vdd vdd CMOSP
++ L={2*LAMBDA} W={W}
++ AS={5*W*LAMBDA} AD={5*W*LAMBDA}
++ PS={10*LAMBDA+2*W} PD={10*LAMBDA+2*W}
+
+M7 d7s8 b gnd gnd CMOSN
++ L={2*LAMBDA} W={W}
++ AS={5*W*LAMBDA} AD={5*W*LAMBDA}
++ PS={10*LAMBDA+2*W} PD={10*LAMBDA+2*W}
+
+M8 c clk d7s8 gnd CMOSN
++ L={2*LAMBDA} W={W}
++ AS={5*W*LAMBDA} AD={5*W*LAMBDA}
++ PS={10*LAMBDA+2*W} PD={10*LAMBDA+2*W}
+
+M9 c b vdd vdd CMOSP
++ L={2*LAMBDA} W={W}
++ AS={5*W*LAMBDA} AD={5*W*LAMBDA}
++ PS={10*LAMBDA+2*W} PD={10*LAMBDA+2*W}
+
+M10 Q c gnd gnd CMOSN
++ L={2*LAMBDA} W={W}
++ AS={5*W*LAMBDA} AD={5*W*LAMBDA}
++ PS={10*LAMBDA+2*W} PD={10*LAMBDA+2*W}
+
+M11 Q c vdd vdd CMOSP
++ L={2*LAMBDA} W={W}
++ AS={5*W*LAMBDA} AD={5*W*LAMBDA}
++ PS={10*LAMBDA+2*W} PD={10*LAMBDA+2*W}
+
+.ends DFF
+
+.subckt PG p0 p1 p2 p3 g0 g1 g2 g3 a0 a1 a2 a3 b0 b1 b2 b3
+
+Xp0 p0 a0 b0 XOR
+Xp1 p1 a1 b1 XOR
+Xp2 p2 a2 b2 XOR
+Xp3 p3 a3 b3 XOR
+
+Xg0 g0 a0 b0 AND
+Xg1 g1 a1 b1 AND
+Xg2 g2 a2 b2 AND
+Xg3 g3 a3 b3 AND
+
+.ends PG
+
+.subckt CLA Cin C1 C2 C3 Cout P0 P1 P2 P3 G0 G1 G2 G3
+
+X1		p0cin_0			P0				Cin			AND
+X2		C1				p0cin_0			G0			OR
+X3		p0cin_1			P0				Cin			AND
+X4		p1p0cin_0		p0cin_1			P1			AND
+X5		p1g0_0			P1				G0			AND
+X6		or2_0			p1p0cin_1		p1g0_0		OR
+X7		C2				or2_0			G1			OR
+X8		p0cin_2			P0				Cin			AND
+X9		p1p0cin_1		p0cin_2			P1			AND
+X10		p2p1p0cin_0		p1p0cin_1		P2			AND
+X11		p1g0_1			P1				G0			AND
+X12		p2p1g0_0		p1g0_1			P2			AND
+X13		p2g1_0			P2				G1			AND
+X14		or3_0			p2p1p0cin_0		p2p1g0_0	OR
+X15		or3_1			or3_0			p2g1_0		OR
+X16		C3				or3_1			G2			OR
+X17		p0cin_3			P0				Cin			AND
+X18		p1p0cin_2		p0cin_3			P1			AND
+X19		p2p1p0cin_1		p1p0cin_2		P2			AND
+X20		p3p2p1p0cin_0	p2p1p0cin_1		P3			AND
+X21		p1g0_2			P1				G0			AND
+X22		p2p1g0_1		p1g0_2			P2			AND
+X23		p3p2p1g0_0		p2p1g0_1		P3			AND
+X24		p2g1_1			P2				G1			AND
+X25		p3p2g1_0		p2g1_1			P3			AND
+X26		p3g2_0			P3				G2			AND
+X27		or4_0			p3p2p1p0cin_0	p3p2p1g0_0	OR
+X28		or4_1			or4_0			p3p2g1_0	OR
+X29		or4_2			or4_1			p3g2_0		OR
+X30		Cout			or4_3			G3			OR
+
+.ends CLA
+
+.subckt SUM S0 S1 S2 S3 P0 P1 P2 P3 Cin C1 C2 C3
+
+X1		S0	P0	Cin		XOR
+X2		S1	P1	C1		XOR
+X3		S2	P2	C2		XOR
+X4		S3	P3	C3		XOR
+
+.ends SUM
+
+****************************************************************************************************************
+X1			A0out	A0	clk		DFF
+X2			A1out	A1	clk		DFF
+X3			A2out	A2	clk		DFF
+X4			A3out	A3	clk		DFF
+X5			B0out	B0	clk		DFF
+X6			B1out	B1	clk		DFF
+X7			B2out	B2	clk		DFF
+X8			B3out	B3	clk		DFF
+
+X9			P0	P1	P2	P3	G0	G1	G2	G3	A0out	A1out	A2out	A3out	B0out	B1out	B2out	B3out	PG
+
+X10			Cin	C1	C2	C3	Coutin	P0	P1	P2	P3	G0	G1	G2	G3	CLA
+
+X11			S0in	S1in	S2in	S3in	P0	P1	P2	P3	Cin	C1	C2	C3	SUM
+
+X12			S0		S0in	clk		DFF
+X13			S1		S1in	clk		DFF
+X14			S2		S2in	clk		DFF
+X15			S3		S3in	clk		DFF
+X16			Cout	Coutin	clk		DFF
+****************************************************************************************************************
+
+.control
+tran 100p 80n
+run
+
+set hcopypscolor=1
+set color0=white
+set color1=black
+
+set curplottitle='Saarthak-Sabharwal-2023102055-top'
+plot V(S0) V(S1)+2 V(S2)+4 V(S3)+6 V(Cout)+8 clk+10
+hardcopy top.eps V(S0) V(S1)+2 V(S2)+4 V(S3)+6 V(Cout)+8 clk+10
+.endc
+
+.end

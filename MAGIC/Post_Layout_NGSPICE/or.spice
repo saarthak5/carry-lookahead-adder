@@ -1,0 +1,60 @@
+* SPICE3 file created from or.ext - technology: scmos
+
+.include TSMC_180nm.txt
+.param SUPPLY=1.8
+.param LAMBDA=0.09u
+.param Wn={10*LAMBDA}
+.param Wp={2*Wn}
+.global gnd vdd
+
+* Source		Nodes			Value
+*******************************************************************
+Vdd				vdd gnd			'SUPPLY'
+Va				a	gnd			pulse 0 'SUPPLY' 0 10p 10p 10n 20n
+Vb				b	gnd			pulse 0 'SUPPLY' 0 10p 10p 20n 40n
+
+.option scale=0.09u
+
+M1000 a_n32_n5# B gnd Gnd CMOSN w=10 l=2
++  ad=100 pd=60 as=170 ps=74
+M1001 a_n32_n5# B a_n25_33# vdd CMOSP w=20 l=2
++  ad=100 pd=50 as=240 ps=64
+M1002 out a_n32_n5# gnd Gnd CMOSN w=10 l=2
++  ad=50 pd=30 as=0 ps=0
+M1003 out a_n32_n5# vdd vdd CMOSP w=20 l=2
++  ad=100 pd=50 as=200 ps=100
+M1004 gnd A a_n32_n5# Gnd CMOSN w=10 l=2
++  ad=0 pd=0 as=0 ps=0
+M1005 a_n25_33# A vdd vdd CMOSP w=20 l=2
++  ad=0 pd=0 as=0 ps=0
+C0 vdd a_n32_n5# 0.17fF
+C1 A a_n32_n5# 0.08fF
+C2 out a_n32_n5# 0.05fF
+C3 B a_n32_n5# 0.39fF
+C4 gnd a_n32_n5# 0.21fF
+C5 A vdd 0.09fF
+C6 out vdd 0.29fF
+C7 vdd B 0.06fF
+C8 A B 0.23fF
+C9 gnd out 0.14fF
+C10 gnd Gnd 0.15fF
+C11 out Gnd 0.10fF
+C12 a_n32_n5# Gnd 0.40fF
+C13 B Gnd 0.26fF
+C14 A Gnd 0.22fF
+C15 vdd Gnd 2.31fF
+
+.control
+tran 100p 40n
+run
+
+set hcopypscolor=1
+set color0=white
+set color1=black
+
+set curplottitle='Saarthak-Sabharwal-2023102055-or-post'
+plot V(out) V(A)+2 V(B)+4
+*hardcopy or.eps V(f) V(a)+2 V(b)+4
+.endc
+
+.end

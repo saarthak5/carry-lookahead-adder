@@ -1,0 +1,77 @@
+* SPICE3 file created from dff.ext - technology: scmos
+
+.include TSMC_180nm.txt
+.param SUPPLY=1.8
+.param LAMBDA=0.09u
+.global gnd vdd
+
+* Source		Nodes			Value
+********************************************************************
+Vdd				vdd gnd			'SUPPLY'
+Vclk			clk	gnd			pulse 0 'SUPPLY' 0 10p 10p 5n 10n
+Vin				D	gnd			pulse 0 'SUPPLY' 2n 10p 10p 20n 40n
+
+.option scale=0.09u
+
+M1000 Q a_75_6# gnd Gnd CMOSN w=10 l=2
++  ad=50 pd=30 as=200 ps=120
+M1001 a_75_n34# a_44_6# gnd Gnd CMOSN w=10 l=2
++  ad=130 pd=46 as=0 ps=0
+M1002 a_13_6# D vdd vdd CMOSP w=10 l=2
++  ad=130 pd=46 as=200 ps=120
+M1003 a_13_n34# clk a_13_6# vdd CMOSP w=10 l=2
++  ad=50 pd=30 as=0 ps=0
+M1004 a_75_6# a_44_6# vdd vdd CMOSP w=10 l=2
++  ad=50 pd=30 as=0 ps=0
+M1005 a_44_n34# clk gnd Gnd CMOSN w=10 l=2
++  ad=130 pd=46 as=0 ps=0
+M1006 a_13_n34# D gnd Gnd CMOSN w=10 l=2
++  ad=50 pd=30 as=0 ps=0
+M1007 Q a_75_6# vdd vdd CMOSP w=10 l=2
++  ad=50 pd=30 as=0 ps=0
+M1008 a_75_6# clk a_75_n34# Gnd CMOSN w=10 l=2
++  ad=50 pd=30 as=0 ps=0
+M1009 a_44_6# a_13_n34# a_44_n34# Gnd CMOSN w=10 l=2
++  ad=50 pd=30 as=0 ps=0
+M1010 a_44_6# clk vdd vdd CMOSP w=10 l=2
++  ad=50 pd=30 as=0 ps=0
+C0 clk a_44_6# 0.44fF
+C1 D a_13_n34# 0.05fF
+C2 vdd a_44_6# 0.24fF
+C3 gnd a_75_6# 0.14fF
+C4 a_13_n34# gnd 0.14fF
+C5 vdd Q 0.14fF
+C6 a_13_n34# a_44_6# 0.22fF
+C7 vdd clk 0.13fF
+C8 gnd a_44_6# 0.14fF
+C9 Q a_75_6# 0.07fF
+C10 gnd Q 0.10fF
+C11 D clk 0.12fF
+C12 clk a_75_6# 0.14fF
+C13 D vdd 0.06fF
+C14 a_13_n34# clk 0.40fF
+C15 vdd a_75_6# 0.28fF
+C16 vdd a_13_n34# 0.18fF
+C17 gnd Gnd 0.50fF
+C18 Q Gnd 0.11fF
+C19 a_13_n34# Gnd 0.34fF
+C20 a_75_6# Gnd 0.34fF
+C21 a_44_6# Gnd 0.36fF
+C22 clk Gnd 1.22fF
+C23 D Gnd 0.25fF
+C24 vdd Gnd 3.18fF
+
+.control
+tran 100p 80n
+run
+
+set hcopypscolor=1
+set color0=white
+set color1=black
+
+set curplottitle='Saarthak-Sabharwal-2023102055-dff-post'
+plot V(Q) V(D)+2 V(clk)+4
+*hardcopy dff.eps V(Q) V(D)+2 V(clk)+4
+.endc
+
+.end

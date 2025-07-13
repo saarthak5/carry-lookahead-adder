@@ -1,0 +1,46 @@
+* NOT gate
+
+*.include ../TSMC_180nm.txt
+*.param SUPPLY=1.8
+*.param LAMBDA=0.09u
+*.param Wn={10*LAMBDA}
+*.param Wp={2*Wn}
+*.global gnd vdd
+
+* Source		Nodes			Value
+*******************************************************************
+*Vdd				vdd gnd			'SUPPLY'
+*Va				x	gnd			pulse 0 'SUPPLY' 0 10p 10p 10n 20n
+
+.subckt INV x xbar
+
+Mp xbar x vdd vdd CMOSP
++ L={2*LAMBDA} W={Wp}
++ AS={5*Wp*LAMBDA} AD={5*Wp*LAMBDA}
++ PS={10*LAMBDA+2*Wp} PD={10*LAMBDA+2*Wp}
+
+Mn xbar x gnd gnd CMOSN
++ L={2*LAMBDA} W={Wn}
++ AS={5*Wn*LAMBDA} AD={5*Wn*LAMBDA}
++ PS={10*LAMBDA+2*Wn} PD={10*LAMBDA+2*Wn}
+
+.ends INV
+
+.end
+
+X1	x	xbar	INV
+
+.control
+tran 100p 20n
+run
+
+set hcopypscolor=1
+set color0=white
+set color1=black
+
+set curplottitle="Saarthak-Sabharwal-2023102055-not"
+*plot V(xbar) V(x)+2
+hardcopy not.eps V(xbar) V(x)+2
+.endc
+
+.end

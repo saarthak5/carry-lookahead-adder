@@ -1,0 +1,141 @@
+* Carry Lookahead Unit (CLA)
+
+.include TSMC_180nm.txt
+.param SUPPLY=1.8
+.param LAMBDA=0.09u
+.param Wn={10*LAMBDA}
+.param Wp={2*Wn}
+.global gnd vdd
+
+* Source		Nodes			Value
+*****************************************
+Vdd				vdd	gnd			'SUPPLY'
+Vp0				p0	gnd			'SUPPLY'
+Vp1				p1	gnd			'SUPPLY'
+Vp2				p2	gnd			'SUPPLY'
+Vp3				p3	gnd				0
+Vg0				g0	gnd				0
+Vg1				g1	gnd			'SUPPLY'
+Vg2				g2	gnd				0
+Vg3				g3	gnd			'SUPPLY'
+Vcin			Cin	gnd				0
+
+* P = 0111, G = 1010
+
+.subckt INV x xbar
+
+Mp xbar x vdd vdd CMOSP
++ L={2*LAMBDA} W={Wp}
++ AS={5*Wp*LAMBDA} AD={5*Wp*LAMBDA}
++ PS={10*LAMBDA+2*Wp} PD={10*LAMBDA+2*Wp}
+
+Mn xbar x gnd gnd CMOSN
++ L={2*LAMBDA} W={Wn}
++ AS={5*Wn*LAMBDA} AD={5*Wn*LAMBDA}
++ PS={10*LAMBDA+2*Wn} PD={10*LAMBDA+2*Wn}
+
+.ends INV
+
+.subckt AND f x y
+
+Mp1 fbar x vdd vdd CMOSP
++ L={2*LAMBDA} W={Wp}
++ AS={5*Wp*LAMBDA} AD={5*Wp*LAMBDA}
++ PS={10*LAMBDA+2*Wp} PD={10*LAMBDA+2*Wp}
+
+Mp2 fbar y vdd vdd CMOSP
++ L={2*LAMBDA} W={Wp}
++ AS={5*Wp*LAMBDA} AD={5*Wp*LAMBDA}
++ PS={10*LAMBDA+2*Wp} PD={10*LAMBDA+2*Wp}
+
+Mn1 fbar x n1 gnd CMOSN
++ L={2*LAMBDA} W={Wn}
++ AS={5*Wn*LAMBDA} AD={5*Wn*LAMBDA}
++ PS={10*LAMBDA+2*Wn} PD={10*LAMBDA+2*Wn}
+
+Mn2 n1 y gnd gnd CMOSN
++ L={2*LAMBDA} W={Wn}
++ AS={5*Wn*LAMBDA} AD={5*Wn*LAMBDA}
++ PS={10*LAMBDA+2*Wn} PD={10*LAMBDA+2*Wn}
+
+X1 fbar f INV
+
+.ends AND
+
+.subckt OR f x y
+
+Mp1 n1 x vdd vdd CMOSP
++ L={2*LAMBDA} W={Wp}
++ AS={5*Wp*LAMBDA} AD={5*Wp*LAMBDA}
++ PS={10*LAMBDA+2*Wp} PD={10*LAMBDA+2*Wp}
+
+Mp2 fbar y n1 vdd CMOSP
++ L={2*LAMBDA} W={Wp}
++ AS={5*Wp*LAMBDA} AD={5*Wp*LAMBDA}
++ PS={10*LAMBDA+2*Wp} PD={10*LAMBDA+2*Wp}
+
+Mn1 fbar x gnd gnd CMOSN
++ L={2*LAMBDA} W={Wn}
++ AS={5*Wn*LAMBDA} AD={5*Wn*LAMBDA}
++ PS={10*LAMBDA+2*Wn} PD={10*LAMBDA+2*Wn}
+
+Mn2 fbar y gnd gnd CMOSN
++ L={2*LAMBDA} W={Wn}
++ AS={5*Wn*LAMBDA} AD={5*Wn*LAMBDA}
++ PS={10*LAMBDA+2*Wn} PD={10*LAMBDA+2*Wn}
+
+X1 fbar f INV
+
+.ends OR
+
+.subckt CLA Cin C1 C2 C3 Cout P0 P1 P2 P3 G0 G1 G2 G3
+
+X1		p0cin_0			P0				Cin			AND
+X2		C1				p0cin_0			G0			OR
+X3		p0cin_1			P0				Cin			AND
+X4		p1p0cin_0		p0cin_1			P1			AND
+X5		p1g0_0			P1				G0			AND
+X6		or2_0			p1p0cin_1		p1g0_0		OR
+X7		C2				or2_0			G1			OR
+X8		p0cin_2			P0				Cin			AND
+X9		p1p0cin_1		p0cin_2			P1			AND
+X10		p2p1p0cin_0		p1p0cin_1		P2			AND
+X11		p1g0_1			P1				G0			AND
+X12		p2p1g0_0		p1g0_1			P2			AND
+X13		p2g1_0			P2				G1			AND
+X14		or3_0			p2p1p0cin_0		p2p1g0_0	OR
+X15		or3_1			or3_0			p2g1_0		OR
+X16		C3				or3_1			G2			OR
+X17		p0cin_3			P0				Cin			AND
+X18		p1p0cin_2		p0cin_3			P1			AND
+X19		p2p1p0cin_1		p1p0cin_2		P2			AND
+X20		p3p2p1p0cin_0	p2p1p0cin_1		P3			AND
+X21		p1g0_2			P1				G0			AND
+X22		p2p1g0_1		p1g0_2			P2			AND
+X23		p3p2p1g0_0		p2p1g0_1		P3			AND
+X24		p2g1_1			P2				G1			AND
+X25		p3p2g1_0		p2g1_1			P3			AND
+X26		p3g2_0			P3				G2			AND
+X27		or4_0			p3p2p1p0cin_0	p3p2p1g0_0	OR
+X28		or4_1			or4_0			p3p2g1_0	OR
+X29		or4_2			or4_1			p3g2_0		OR
+X30		Cout			or4_3			G3			OR
+
+.ends CLA
+
+X1 Cin C1 C2 C3 Cout P0 P1 P2 P3 G0 G1 G2 G3 CLA
+
+.control
+tran 100p 80n
+run
+
+set hcopypscolor=1
+set color0=white
+set color1=black
+
+set curplottitle='Saarthak-Sabharwal-2023102055-cla'
+plot V(Cin) V(C1)+2 V(C2)+4 V(C3)+6 V(Cout)+8
+hardcopy cla.eps V(Cin) V(C1)+2 V(C2)+4 V(C3)+6 V(Cout)+8
+.endc
+
+.end

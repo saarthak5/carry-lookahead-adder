@@ -1,0 +1,58 @@
+* OR gate
+
+.include ../TSMC_180nm.txt
+.include not.spice
+.param SUPPLY=1.8
+.param LAMBDA=0.09u
+.param Wn={10*LAMBDA}
+.param Wp={2*Wn}
+.global gnd vdd
+
+* Source		Nodes			Value
+*******************************************************************
+Vdd				vdd gnd			'SUPPLY'
+Va				a	gnd			pulse 0 'SUPPLY' 0 10p 10p 10n 20n
+Vb				b	gnd			pulse 0 'SUPPLY' 0 10p 10p 20n 40n
+
+.subckt OR f x y
+
+Mp1 n1 x vdd vdd CMOSP
++ L={2*LAMBDA} W={Wp}
++ AS={5*Wp*LAMBDA} AD={5*Wp*LAMBDA}
++ PS={10*LAMBDA+2*Wp} PD={10*LAMBDA+2*Wp}
+
+Mp2 fbar y n1 vdd CMOSP
++ L={2*LAMBDA} W={Wp}
++ AS={5*Wp*LAMBDA} AD={5*Wp*LAMBDA}
++ PS={10*LAMBDA+2*Wp} PD={10*LAMBDA+2*Wp}
+
+Mn1 fbar x gnd gnd CMOSN
++ L={2*LAMBDA} W={Wn}
++ AS={5*Wn*LAMBDA} AD={5*Wn*LAMBDA}
++ PS={10*LAMBDA+2*Wn} PD={10*LAMBDA+2*Wn}
+
+Mn2 fbar y gnd gnd CMOSN
++ L={2*LAMBDA} W={Wn}
++ AS={5*Wn*LAMBDA} AD={5*Wn*LAMBDA}
++ PS={10*LAMBDA+2*Wn} PD={10*LAMBDA+2*Wn}
+
+X1 fbar f INV
+
+.ends OR
+
+X1	f a b	OR
+
+.control
+tran 100p 40n
+run
+
+set hcopypscolor=1
+set color0=white
+set color1=black
+
+set curplottitle="Saarthak-Sabharwal-2023102055-or"
+*plot V(f) V(a)+2 V(b)+4
+hardcopy or.eps V(f) V(a)+2 V(b)+4
+.endc
+
+.end

@@ -1,0 +1,90 @@
+* D Flip-Flop
+
+.include TSMC_180nm.txt
+.param SUPPLY=1.8
+.param LAMBDA=0.09u
+.global gnd vdd
+
+* Source		Nodes			Value
+********************************************************************
+Vdd				vdd gnd			'SUPPLY'
+Vclk			clk	gnd			pulse 0 'SUPPLY' 0 10p 10p 5n 10n
+Vin				D	gnd			pulse 0 'SUPPLY' 2n 10p 10p 20n 40n
+
+.subckt DFF Q D clk
+
+.param W={10*LAMBDA}
+
+M1 a D gnd gnd CMOSN
++ L={2*LAMBDA} W={W}
++ AS={5*W*LAMBDA} AD={5*W*LAMBDA}
++ PS={10*LAMBDA+2*W} PD={10*LAMBDA+2*W}
+
+M2 a clk s2d3 vdd CMOSP
++ L={2*LAMBDA} W={W}
++ AS={5*W*LAMBDA} AD={5*W*LAMBDA}
++ PS={10*LAMBDA+2*W} PD={10*LAMBDA+2*W}
+
+M3 s2d3 D vdd vdd CMOSP
++ L={2*LAMBDA} W={W}
++ AS={5*W*LAMBDA} AD={5*W*LAMBDA}
++ PS={10*LAMBDA+2*W} PD={10*LAMBDA+2*W}
+
+M4 d4s5 clk gnd gnd CMOSN
++ L={2*LAMBDA} W={W}
++ AS={5*W*LAMBDA} AD={5*W*LAMBDA}
++ PS={10*LAMBDA+2*W} PD={10*LAMBDA+2*W}
+
+M5 b a d4s5 gnd CMOSN
++ L={2*LAMBDA} W={W}
++ AS={5*W*LAMBDA} AD={5*W*LAMBDA}
++ PS={10*LAMBDA+2*W} PD={10*LAMBDA+2*W}
+
+M6 b clk vdd vdd CMOSP
++ L={2*LAMBDA} W={W}
++ AS={5*W*LAMBDA} AD={5*W*LAMBDA}
++ PS={10*LAMBDA+2*W} PD={10*LAMBDA+2*W}
+
+M7 d7s8 b gnd gnd CMOSN
++ L={2*LAMBDA} W={W}
++ AS={5*W*LAMBDA} AD={5*W*LAMBDA}
++ PS={10*LAMBDA+2*W} PD={10*LAMBDA+2*W}
+
+M8 c clk d7s8 gnd CMOSN
++ L={2*LAMBDA} W={W}
++ AS={5*W*LAMBDA} AD={5*W*LAMBDA}
++ PS={10*LAMBDA+2*W} PD={10*LAMBDA+2*W}
+
+M9 c b vdd vdd CMOSP
++ L={2*LAMBDA} W={W}
++ AS={5*W*LAMBDA} AD={5*W*LAMBDA}
++ PS={10*LAMBDA+2*W} PD={10*LAMBDA+2*W}
+
+M10 Q c gnd gnd CMOSN
++ L={2*LAMBDA} W={W}
++ AS={5*W*LAMBDA} AD={5*W*LAMBDA}
++ PS={10*LAMBDA+2*W} PD={10*LAMBDA+2*W}
+
+M11 Q c vdd vdd CMOSP
++ L={2*LAMBDA} W={W}
++ AS={5*W*LAMBDA} AD={5*W*LAMBDA}
++ PS={10*LAMBDA+2*W} PD={10*LAMBDA+2*W}
+
+.ends DFF
+
+X1 Q D clk DFF
+
+.control
+tran 100p 80n
+run
+
+set hcopypscolor=1
+set color0=white
+set color1=black
+
+set curplottitle='Saarthak-Sabharwal-2023102055-dff'
+plot V(Q) V(D)+2 V(clk)+4
+hardcopy dff.eps V(Q) V(D)+2 V(clk)+4
+.endc
+
+.end

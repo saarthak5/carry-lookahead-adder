@@ -1,0 +1,109 @@
+* Sum Block
+
+.include TSMC_180nm.txt
+.param SUPPLY=1.8
+.param LAMBDA=0.09u
+.param Wn={10*LAMBDA}
+.param Wp={2*Wn}
+.global gnd vdd
+
+* Source		Nodes			Value
+*****************************************
+Vdd				vdd	gnd			'SUPPLY'
+Vp0				P0	gnd			'SUPPLY'
+Vp1				P1	gnd			'SUPPLY'
+Vp2				P2	gnd			'SUPPLY'
+Vp3				P3	gnd				0
+Vcin			Cin	gnd				0
+Vc1				C1	gnd			'SUPPLY'
+Vc2				C2	gnd				0
+Vc3				C3	gnd			'SUPPLY'
+
+* P = 0111, C = 1010
+
+.subckt INV x xbar
+
+Mp xbar x vdd vdd CMOSP
++ L={2*LAMBDA} W={Wp}
++ AS={5*Wp*LAMBDA} AD={5*Wp*LAMBDA}
++ PS={10*LAMBDA+2*Wp} PD={10*LAMBDA+2*Wp}
+
+Mn xbar x gnd gnd CMOSN
++ L={2*LAMBDA} W={Wn}
++ AS={5*Wn*LAMBDA} AD={5*Wn*LAMBDA}
++ PS={10*LAMBDA+2*Wn} PD={10*LAMBDA+2*Wn}
+
+.ends INV
+
+.subckt XOR f x y
+
+X1 x xbar INV
+X2 y ybar INV
+
+Mp1 n1 x vdd vdd CMOSP
++ L={2*LAMBDA} W={Wp}
++ AS={5*Wp*LAMBDA} AD={5*Wp*LAMBDA}
++ PS={10*LAMBDA+2*Wp} PD={10*LAMBDA+2*Wp}
+
+Mp2 n2 xbar vdd vdd CMOSP
++ L={2*LAMBDA} W={Wp}
++ AS={5*Wp*LAMBDA} AD={5*Wp*LAMBDA}
++ PS={10*LAMBDA+2*Wp} PD={10*LAMBDA+2*Wp}
+
+Mp3 f ybar n1 vdd CMOSP
++ L={2*LAMBDA} W={Wp}
++ AS={5*Wp*LAMBDA} AD={5*Wp*LAMBDA}
++ PS={10*LAMBDA+2*Wp} PD={10*LAMBDA+2*Wp}
+
+Mp4 f y n2 vdd CMOSP
++ L={2*LAMBDA} W={Wp}
++ AS={5*Wp*LAMBDA} AD={5*Wp*LAMBDA}
++ PS={10*LAMBDA+2*Wp} PD={10*LAMBDA+2*Wp}
+
+Mn1 f xbar n3 gnd CMOSN
++ L={2*LAMBDA} W={Wn}
++ AS={5*Wn*LAMBDA} AD={5*Wn*LAMBDA}
++ PS={10*LAMBDA+2*Wn} PD={10*LAMBDA+2*Wn}
+
+Mn2 f x n4 gnd CMOSN
++ L={2*LAMBDA} W={Wn}
++ AS={5*Wn*LAMBDA} AD={5*Wn*LAMBDA}
++ PS={10*LAMBDA+2*Wn} PD={10*LAMBDA+2*Wn}
+
+Mn3 n3 ybar gnd gnd CMOSN
++ L={2*LAMBDA} W={Wn}
++ AS={5*Wn*LAMBDA} AD={5*Wn*LAMBDA}
++ PS={10*LAMBDA+2*Wn} PD={10*LAMBDA+2*Wn}
+
+Mn4 n4 y gnd gnd CMOSN
++ L={2*LAMBDA} W={Wn}
++ AS={5*Wn*LAMBDA} AD={5*Wn*LAMBDA}
++ PS={10*LAMBDA+2*Wn} PD={10*LAMBDA+2*Wn}
+
+.ends XOR
+
+.subckt SUM S0 S1 S2 S3 P0 P1 P2 P3 Cin C1 C2 C3
+
+X1		S0	P0	Cin		XOR
+X2		S1	P1	C1		XOR
+X3		S2	P2	C2		XOR
+X4		S3	P3	C3		XOR
+
+.ends SUM
+
+X1 S0 S1 S2 S3 P0 P1 P2 P3 Cin C1 C2 C3 SUM
+
+.control
+tran 100p 80n
+run
+
+set hcopypscolor=1
+set color0=white
+set color1=black
+
+set curplottitle='Saarthak-Sabharwal-2023102055-sum'
+plot V(S0) V(S1)+2 V(S2)+4 V(S3)+6
+hardcopy sum.eps V(S0) V(S1)+2 V(S2)+4 V(S3)+6
+.endc
+
+.end
